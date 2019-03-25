@@ -1,0 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////
+// Module:  mips_pipeline_tb.v
+// Project: SJSU EE275 Mini Project 2
+// Description: Test bench
+//
+// Name: Zach Smith 
+// Student ID: 007159087
+//
+// Note:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+module mips_pipeline_tb(
+  
+);
+
+initial begin
+   $display("fuck");
+end
+
+endmodule // mips_pipeline_tb
