@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// File:  instruction_defs.vh
+// File:  mips_defs.vh
 // Project: SJSU EE275 Mini Project 2
-// Description: Defines macros defining opcodes and function codes
+// Description: Defines macros defining data widths, opcodes, and function codes
 //
 // Name: Zach Smith 
 // Student ID: 007159087
@@ -9,11 +9,12 @@
 // Note: There are more definitions than what's needed for this project.
 //
 ////////////////////////////////////////////////////////////////////////////////
-`ifndef _INSTR_DEFS_VH
-`define _INSTR_DEFS_VH
+`ifndef _MIPS_DEFS_VH
+`define _MIPS_DEFS_VH
 
 `define INSTR_WIDTH        32
 `define ADDR_WIDTH         32
+`define DATA_WIDTH         32
 `define REG_WIDTH          32
 
 `define FIELD_WIDTH_OP     6
@@ -92,4 +93,4 @@
 `define FUNC_JR            6'b001000   // jump register
 
 
-`endif //_INSTR_DEFS_VH
+`endif //_MIPS_DEFS_VH

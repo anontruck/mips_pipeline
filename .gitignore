@@ -1,0 +1,5 @@
+*.vcd
+*.o
+*.out
+out
+build/bin/

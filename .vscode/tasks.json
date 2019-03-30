@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
+            "label": "build",
             "type": "shell",
             "group": {
                 "kind": "build",
@@ -16,7 +16,15 @@
             }
         },
         {
-            "label": "Clean and Build",
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": {
+                "cwd": "${workspaceFolder}\\build"
+            }
+        },
+        {
+            "label": "clean and build",
             "type": "shell",
             "group": "build",
             "command": "make clean; make all",
@@ -25,7 +33,7 @@
             }
         },
         {
-            "label": "Sim",
+            "label": "sim",
             "type": "shell",
             "command": "make run",
             "options": {
