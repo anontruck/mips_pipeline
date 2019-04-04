@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Module: instr_fetch_unit.v
+// Module: instr_fetch.v
 // Project: SJSU EE275 Mini Project 2
 // Description: Instruction fetch unit
 //
@@ -11,7 +11,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 `include "mips_defs.vh"
 
-module instr_fetch_unit(
+module instr_fetch(
    output wire [`INSTR_WIDTH-1:0] instr_87,  // next instruction to decode
    output reg  [`ADDR_WIDTH-1:0] pc_87,      // current instruction address
    input wire  [`ADDR_WIDTH-1:0] npc_87,     // next address if not pc+4
@@ -41,4 +41,4 @@ always @(posedge clk_87 or posedge rst_87) begin
    end
 end
 
-endmodule // instr_fetch_unit
+endmodule // instr_fetch

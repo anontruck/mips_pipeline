@@ -44,7 +44,7 @@ wire  [`FIELD_WIDTH_RSTD-1:0] wreg_id_87,
                               rt_id_87,
                               rd_id_87;
 
-instr_fetch_unit ifu (
+instr_fetch ifu (
    .instr_87   (instr_if_87),
    .pc_87      ( pc_if_87 ),
    .npc_87     (  32'b0   ),
@@ -70,7 +70,7 @@ vl_dff #(.width(`ADDR_WIDTH)) dff_pc_if (
 //assign rreg_1_87 = instr_id_87[`FIELD_POS_RS+`FIELD_WIDTH_RSTD:`FIELD_POS_RS];
 //assign rreg_2_87 = instr_id_87[`FIELD_POS_RD+`FIELD_WIDTH_RSTD:`FIELD_POS_RD];
 
-instr_decode_unit idu (
+instr_decode idu (
    .reg_write_87     (  reg_write_87   ),
    .mem_to_reg_87    (  mem_to_reg_87  ),
    .branch_87        (  branch_87      ),

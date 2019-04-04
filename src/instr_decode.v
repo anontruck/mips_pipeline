@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Module: instr_decond_unit.v
+// Module: instr_decond.v
 // Project: SJSU EE275 Mini Project 2
 // Description: Instruction decode unit. 
 //
@@ -11,7 +11,7 @@
 
 `define DEBUG_TRACE
 
-module instr_decode_unit (
+module instr_decode (
    output reg                                reg_write_87,        // control signals
    output reg                                mem_to_reg_87,
    output reg                                branch_87,
@@ -131,4 +131,4 @@ end
    end
 `endif
 
-endmodule // instr_decode_unit
+endmodule // instr_decode
