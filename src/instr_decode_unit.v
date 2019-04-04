@@ -9,6 +9,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 `include "mips_defs.vh"
 
+`define DEBUG_TRACE
+
 module instr_decode_unit (
    output reg                                reg_write_87,        // control signals
    output reg                                mem_to_reg_87,
@@ -21,6 +23,7 @@ module instr_decode_unit (
    output reg  [`DATA_WIDTH      -1 : 0   ]  data_read_1_87,   // read data outputs
    output reg  [`DATA_WIDTH      -1 : 0   ]  data_read_2_87,
    output reg  [`DATA_WIDTH      -1 : 0   ]  immd_87,          // sign extended immediate
+   output reg  [`FIELD_WIDTH_SHAMT-1: 0   ]  shamt_87,
    output reg  [`FIELD_WIDTH_OP  -1 : 0   ]  op_87,
    output reg  [`FIELD_WIDTH_OP  -1 : 0   ]  fn_87,
    output reg  [`FIELD_WIDTH_RSTD-1 : 0   ]  rt_87,
@@ -76,14 +79,15 @@ ctrl_unit ctrl_unit (
 );
 
 // TODO - add stall control input. If set, pc remains unchanged
-always @(posedge clk_87 or posedge rst_87) begin
-   if (rst_87) begin
-   end else begin
-   end
-end
+//always @(posedge clk_87 or posedge rst_87) begin
+   //if (rst_87) begin
+   //end else begin
+   //end
+//end
 
 always @(*) begin
-   immd_87        <= {{`FIELD_WIDTH_IMM{instr_87[`FIELD_WIDTH_IMM-1]}}, instr_87};
+   immd_87        <= {{`FIELD_WIDTH_IMM{instr_87[`FIELD_WIDTH_IMM-1]}}, instr_87[`FIELD_WIDTH_IMM-1:0]}; 
+   shamt_87       <= instr_87[`FIELD_WIDTH_SHAMT+`FIELD_POS_SHFT-1:`FIELD_POS_SHFT];
    data_read_1_87 <= reg_data_1_87;
    data_read_2_87 <= reg_data_2_87;
    reg_write_87   <= ctrl_reg_wb_87;
@@ -100,7 +104,6 @@ always @(*) begin
    fn_87          <= instr_87[`FIELD_POS_FUNC+`FIELD_WIDTH_FUNC-1:`FIELD_POS_FUNC];
 end
 
-`define DEBUG_TRACE
 `ifdef DEBUG_TRACE
    wire [`FIELD_WIDTH_RSTD-1:0] rs_87 = instr_87[`FIELD_POS_RS+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RS];
    always @(posedge clk_87 or posedge rst_87) begin
