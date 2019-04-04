@@ -21,21 +21,23 @@ module instr_fetch_unit(
 );
 
 wire en_87 = ~rst_87; 
-wire [`ADDR_WIDTH-1:0] next_addr_87 = sel_87 ? npc_87 : pc_87 + 4;
+wire [`ADDR_WIDTH-1:0] next_addr_87;
+
+assign next_addr_87 = sel_87 ? npc_87 : pc_87 + 4;
 
 instr_mem i_mem_87 (
-   .instr_87(instr_87),
-   .addr_87(pc_87),
-   .en_87(en_87),
-   .clk_87(clk_87)
+   .instr_87   ( instr_87  ),
+   .addr_87    (  pc_87    ),
+   .en_87      (  en_87    ),
+   .clk_87     (  clk_87   )
 );
 
 
 always @(posedge clk_87 or posedge rst_87) begin
    if (rst_87) begin
-      pc_87 <= `ADDR_WIDTH'b0;
+      pc_87          <= `ADDR_WIDTH'b0;
    end else begin
-      pc_87 <= next_addr_87;
+      pc_87          <= next_addr_87;
    end
 end
 

@@ -5,13 +5,13 @@ PROJECT_SRC_PATH = ../src
 PROJECT_TST_PATH = ../test
 
 PROJECT_SRC = $(wildcard ../src/*.v)
-PROJECT_SRC += $(PROJECT_TST_PATH)/mips_pipeline_tb.v
+PROJECT_SRC += $(PROJECT_TST_PATH)/tb_mips_pipeline.v
 
 PROJECT_INC = -I $(PROJECT_SRC_PATH)
 
 PROJECT_LIBS = -y../lib
 
-IM_FILE = "../test/instructions.mem"
+IM_FILE = "../test/imem.mem"
 DM_FILE = ""
 PROJECT_DEFS = -DINSTR_FILE=\"$(IM_FILE)\"
 
@@ -19,7 +19,7 @@ IVERILOG_FLAGS = -Wall
 
 all: $(PROJECT_SRC)
 	@echo build started...
-	iverilog $(IVERILOG_FLAGS) -o $(PROJECT_BUILD_PATH)/out $(PROJECT_DEFS) $(PROJECT_INC) $(PROJECT_LIBS) $(PROJECT_SRC)
+	@iverilog $(IVERILOG_FLAGS) -o $(PROJECT_BUILD_PATH)/out $(PROJECT_DEFS) $(PROJECT_INC) $(PROJECT_LIBS) $(PROJECT_SRC)
 	@echo done
 
 clean:
