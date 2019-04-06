@@ -61,7 +61,7 @@
 
 /* ===================== F U N C T I O N  C O D E S ========================  */
 
-`define FUNC_SLL           6'b000000   // shift left logical
+`define FUNC_SLL           6'b000100   // shift left logical
 `define FUNC_SRL           6'b000010   // shift right logical
 `define FUNC_JR            6'b001000   // jump register
 //`define FUNC_JALR          6'b001001   // jump and link register
@@ -80,7 +80,7 @@
 `define FUNC_SUBU          6'b100011   // sub unsigned
 `define FUNC_AND           6'b100100   // bitwise AND
 `define FUNC_OR            6'b100101   // bitwise OR
-`define FUNC_XOR           6'b100110   // bitwise XOR
+//`define FUNC_XOR           6'b100110   // bitwise XOR
 `define FUNC_SLT           6'b101010   // set if less than
 `define FUNC_SLTU          6'b101011   // set if less than unsigned
 

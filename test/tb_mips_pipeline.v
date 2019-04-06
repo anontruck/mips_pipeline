@@ -18,7 +18,7 @@ wire [`ADDR_WIDTH-1:0] addr_87;
 
 reg clk_87, rst_87;
 
-mips_datapath uut(
+simple_mips uut(
    .rst_87(rst_87),
    .clk_87(clk_87)
 );
@@ -33,12 +33,12 @@ mips_datapath uut(
 //);
 
 initial begin
-   rst_87 = 1'b1;
-   clk_87 = 1'b1;
+   rst_87 <= 1'b1;
+   clk_87 <= 1'b1;
    $dumpfile("../build/bin/dump.vcd");
    $dumpvars;  // dump em all
 
-   #4 rst_87 = 1'b0;
+   #4 rst_87 <= 1'b0;
 
    //$monitor($time,,,"%h %h", instr_87, addr_87);
    #24 $finish;

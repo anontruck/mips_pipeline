@@ -1,6 +1,5 @@
 *.vcd
 *.o
 *.out
-out
-build/bin/
-build/bin/out
+out.out
+bin/
