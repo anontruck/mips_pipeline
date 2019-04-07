@@ -3,3 +3,4 @@
 *.out
 out.out
 bin/
+build/bin

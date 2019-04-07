@@ -21,6 +21,7 @@ module ctrl_unit(
    output   reg                           mem_write_87,
    output   reg                           mem_to_reg_87,
    output   reg   [1:0]                   alu_op_87,
+   output   reg                           imm_as_reg_87, // kludge    
    input    wire  [`FIELD_WIDTH_OP-1:0]   op_87,
    input    wire  [`FIELD_WIDTH_FUNC-1:0] fn_87
 );
@@ -34,6 +35,7 @@ always @(*) begin
    mem_read_87    <= 1'b0;
    mem_write_87   <= 1'b0;
    mem_to_reg_87  <= 1'b0;
+   imm_as_reg_87  <= 1'b0;
    alu_op_87      <= 2'b0;
 
    if (op_87 == `OPCODE_R) begin
@@ -79,8 +81,13 @@ always @(*) begin
    end else if (op_87 == `OPCODE_SLTIU) begin
       alu_src_87     <= 1'b1;
       reg_wb_87      <= 1'b1;
+   end else if (op_87 == `OPCODE_MUL) begin  // treating this like an R-type
+      reg_wb_87      <= 1'b1;
+      reg_dst_87     <= 1'b1;       // destination register is rd
+      imm_as_reg_87  <= 1'b1;
+      alu_op_87      <= 2'b10;
    end else begin
-      // TODO - handle this somehow
+      // TODO - handle this somehow. Or not.
    end
 end
 

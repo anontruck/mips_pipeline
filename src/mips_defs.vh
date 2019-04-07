@@ -58,6 +58,7 @@
 `define OPCODE_BEQ         6'b000100   // branch if equal
 `define OPCODE_BNE         6'b000101   // branch if NOT equal
 //`define OPCODE_JAL         6'b000011   // jump and link - used for calls
+`define OPCODE_MUL         6'b011100   // multiply
 
 /* ===================== F U N C T I O N  C O D E S ========================  */
 

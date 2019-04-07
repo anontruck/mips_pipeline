@@ -40,13 +40,18 @@ always @(posedge clk_87 or posedge rst_87) begin
 end
 
 // read data on falling edges - second half of clock cycle
-always @(negedge clk_87 or posedge rst_87) begin
-   if (rst_87) begin
-
-   end else begin
+always @(negedge clk_87) begin
+   if (!rst_87) begin
       read_data_1_87 <= regs_87[read_reg_1_87];
       read_data_2_87 <= regs_87[read_reg_2_87];
    end
 end
+
+`ifdef DEBUG_TRACE
+always @(posedge clk_87) begin
+   if (!rst_87 && we_87 && (write_reg_87 == 0))
+      $strobe($time,,,"IF: Attempted to write to $r0");
+end
+`endif
 
 endmodule // regs
