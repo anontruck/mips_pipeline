@@ -15,7 +15,7 @@ module mem(
 
    output reg [`DATA_WIDTH-1:0] rd_data_87,           // data read from memory
    output reg [`ADDR_WIDTH-1:0] wb_addr_87,           // write-back address
-   output reg [`FIELD_WIDTH_RSTD-1:0] wb_reg_out_87,  // feed-through
+   output reg [`RADDR_WIDTH-1:0] wb_reg_out_87,       // feed-through
    output reg mem_2_reg_out_87,
    output reg [`ADDR_WIDTH-1:0] pc_out_87,
 
@@ -55,6 +55,7 @@ data_mem dmem (
 always @(posedge clk_87) begin
    if (rst_87) begin
       pc_out_87 <= 0;
+      wb_reg_out_87 <= 0;
    end else begin
       pc_out_87 <= pc_in_87;
       rd_data_87 <= mem_out_87;

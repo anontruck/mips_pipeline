@@ -17,7 +17,7 @@ module instr_ex (
    output reg [`ADDR_WIDTH-1:0] br_addr_87,        // effective branch address
    output reg [`DATA_WIDTH-1:0] adr_out_87,        // ALU output
    output reg [`DATA_WIDTH-1:0] wb_data_87,        // write-back data
-   output reg [`FIELD_WIDTH_RSTD-1:0] wb_radr_87,  // write-back register address
+   output reg [`RADDR_WIDTH-1:0] wb_radr_87,       // write-back register address
 
    output reg branch_out_87,                       // control signal feed-through outputs
    output reg mem_read_out_87,
@@ -114,6 +114,7 @@ always @(posedge clk_87) begin
    if (rst_87) begin
       pc_out_87  <= 0;
       adr_out_87 <= 0;
+      wb_radr_87 <= 0;
    end else begin
       zero_87     <= alu_zero_87;
       adr_out_87  <= alu_rslt_87;

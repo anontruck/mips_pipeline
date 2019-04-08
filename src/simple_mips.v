@@ -59,16 +59,20 @@ wire [`DATA_WIDTH-1:0] data_out_2_id_ex_87;
 wire [`DATA_WIDTH-1:0] immed_out_id_ex_87;
 wire [`DATA_WIDTH-1:0] jump_adr_out_id_87;
 
-wire [`FIELD_WIDTH_RSTD-1:0] rs_id_ex_87;
-wire [`FIELD_WIDTH_RSTD-1:0] rt_id_ex_87;
-wire [`FIELD_WIDTH_RSTD-1:0] rd_id_ex_87;
+wire [`RADDR_WIDTH-1:0] rs_id_ex_87;
+wire [`RADDR_WIDTH-1:0] rt_id_ex_87;
+wire [`RADDR_WIDTH-1:0] rd_id_ex_87;
 
 wire [`FIELD_WIDTH_OP-1:0] op_code_id_ex_87;
 wire [`FIELD_WIDTH_FUNC-1:0] fn_code_id_ex_87;
 
 wire reg_write_wb_id_87;
 wire [`DATA_WIDTH-1:0] wbck_data_wb_id_87;
-wire [`FIELD_WIDTH_RSTD-1:0] wbck_reg_wb_ex_87;
+wire [`RADDR_WIDTH-1:0] wr_wb_id_87;
+
+
+wire [`RADDR_WIDTH-1:0] rt_id_in_hz_87;
+wire [`RADDR_WIDTH-1:0] rs_id_in_hz_87;
 
 instr_decode idu (
    .reg_write_87     (  reg_write_id_ex_87   ),
@@ -92,9 +96,12 @@ instr_decode idu (
    .fn_87            (  fn_code_id_ex_87     ),
    .pc_out_87        (  pc_out_id_87         ),
 
+   .rs_async_out_87  (  rs_id_in_hz_87       ),
+   .rt_async_out_87  (  rt_id_in_hz_87       ),
+
    .pc_in_87         (  pc_out_if_87         ),
    .instr_87         (  instr_if_id_87       ),
-   .reg_2_write_87   (  wbck_reg_wb_ex_87    ),
+   .reg_2_write_87   (  wr_wb_id_87    ),
    .data_2_write_87  (  wbck_data_wb_id_87   ),
    .en_wb_87         (  reg_write_wb_id_87   ),
    .rst_87           (  rst_87               ),
@@ -185,7 +192,7 @@ mem dmu (
 write_back wbu (
    .reg_write_out_87(reg_write_wb_id_87),
    .wb_data_87(wbck_data_wb_id_87),
-   .wb_reg_out_87(wbck_reg_wb_ex_87),
+   .wb_reg_out_87(wr_wb_id_87),
 
    .reg_write_in_87(mem_write_out_ex_87),
    .mem_2_reg_in_87(mem_2_reg_dm_87),
@@ -193,6 +200,19 @@ write_back wbu (
    .mem_addr_in_87(mem_addr_out_87),
    .wb_reg_in_87(wb_reg_mem_87),
 
+   .rst_87(rst_87),
+   .clk_87(clk_87)
+);
+
+hazard_ctl hzu (
+   .stall_87(),
+   
+   .r1_id_in_87(rs_id_in_hz_87),
+   .r2_id_in_87(rt_id_in_hz_87),
+   .rd_id_ex_87(rd_id_ex_87),
+   .rd_ex_dm_87(wb_reg_ex_87),
+   .rd_dm_wb_87(wb_reg_mem_87),
+   .rd_wb_id_87(wr_wb_id_87),
    .rst_87(rst_87),
    .clk_87(clk_87)
 );

@@ -9,35 +9,59 @@
 ////////////////////////////////////////////////////////////////////////////////
 `include "mips_defs.vh"
 
-/*
-
-data hazard when destination register of current instruction in execution stage
-is the same as the address to be read in the incoming instruction decode stage
-
-ALU result from EX/MEM register is always fed back to the ALU input latches
-
-if the forwarding hardware detects that the previous ALU operation has written
-to the register corresponding to the source for the current ALU operation, we
-select the forwarded result as the ALU input rather than the value read from the
-register
-
-
-*/
-
 module hazard_ctl(
    output reg stall_87,
    output reg flush_87,
    input wire [`RADDR_WIDTH-1:0] r1_id_in_87,   // 1st incoming read reg to ID
    input wire [`RADDR_WIDTH-1:0] r2_id_in_87,   // 2nd incoming read reg to ID
-   input wire [`RADDR_WIDTH-1:0] rs_id_ex_87,   // rs between ID and EX stages
-   input wire [`RADDR_WIDTH-1:0] rt_id_ex_87,   // rt between ID and EX stages
+   input wire [`RADDR_WIDTH-1:0] rd_id_ex_87,   // rd between ID and EX stages
    input wire [`RADDR_WIDTH-1:0] rd_ex_dm_87,   // rd between EX and MEM stages
    input wire [`RADDR_WIDTH-1:0] rd_dm_wb_87,   // rd between MEM and WB stages
-   input wire rst_87
+   input wire [`RADDR_WIDTH-1:0] rd_wb_id_87,   // write back reg
+   input wire rst_87,
+   input wire clk_87 // only for debugging...
 );
 
-always @(*) begin
+wire hazard_r1_id_ex = (r1_id_in_87 == rd_id_ex_87) && (rd_id_ex_87 != 0);
+wire hazard_r1_ex_dm = (r1_id_in_87 == rd_ex_dm_87) && (rd_ex_dm_87 != 0);
+wire hazard_r1_dm_wb = (r1_id_in_87 == rd_dm_wb_87) && (rd_dm_wb_87 != 0);
+wire hazard_r1_wb_id = (r1_id_in_87 == rd_wb_id_87) && (rd_wb_id_87 != 0);
 
+wire hazard_r2_id_ex = (r2_id_in_87 == rd_id_ex_87) && (rd_id_ex_87 != 0);
+wire hazard_r2_ex_dm = (r2_id_in_87 == rd_ex_dm_87) && (rd_ex_dm_87 != 0);
+wire hazard_r2_dm_wb = (r2_id_in_87 == rd_dm_wb_87) && (rd_dm_wb_87 != 0);
+wire hazard_r2_wb_id = (r2_id_in_87 == rd_wb_id_87) && (rd_wb_id_87 != 0);
+
+wire hazard_r1 = hazard_r1_id_ex || hazard_r1_ex_dm || hazard_r1_dm_wb || hazard_r1_wb_id;
+wire hazard_r2 = hazard_r2_id_ex || hazard_r2_ex_dm || hazard_r2_dm_wb || hazard_r2_wb_id;
+
+always @(posedge clk_87) begin
+   stall_87 <= 0;
+   flush_87 <= 0;
+   if (!rst_87 && (hazard_r1 || hazard_r2)) begin
+      stall_87 <= 1;
+`ifdef DEBUG_TRACE
+      $strobe($time,,,"********** Hazard **********");
+      if (hazard_r1)
+         if (hazard_r1_id_ex)
+            $strobe($time,,,"rd 1 id/ex");
+         if (hazard_r1_ex_dm)
+            $strobe($time,,,"rd 1 ex/dm");
+         if (hazard_r1_dm_wb)
+            $strobe($time,,,"rd 1 dm/wb");
+         if (hazard_r1_wb_id)
+            $strobe($time,,,"rd 1 wb/id");
+      if (hazard_r2)
+         if (hazard_r2_id_ex)
+            $strobe($time,,,"rd 2 id/ex");
+         if (hazard_r2_ex_dm)
+            $strobe($time,,,"rd 2 ex/dm");
+         if (hazard_r2_dm_wb)
+            $strobe($time,,,"rd 2 dm/wb");
+         if (hazard_r2_wb_id)
+            $strobe($time,,,"rd 2 wb/id");
+`endif
+   end
 end
 
 endmodule // hazard_ctl

@@ -20,9 +20,11 @@ module instr_decode (
    output reg alu_src_87,                             // ALU input source flag
    output reg [1:0] alu_op_87,                        // ALU operation control signal
    output reg [1:0] jump_sel_87,                      // jump address select
+
    // data outputs
    output reg [`DATA_WIDTH-1:0] data_read_1_87,       // read data outputs
    output reg [`DATA_WIDTH-1:0] data_read_2_87,
+
    // instruction decoding - TODO probably don't need
    output reg [`DATA_WIDTH-1:0] jump_addr_out_87,     // jump address
    output reg [`DATA_WIDTH-1:0] immd_87,              // sign extended immediate
@@ -33,6 +35,11 @@ module instr_decode (
    output reg [`RADDR_WIDTH-1:0] rt_87,
    output reg [`RADDR_WIDTH-1:0] rd_87,
    output reg [`ADDR_WIDTH-1:0] pc_out_87,
+
+   // async rs and rt outputs for hazard detection and forwarding
+   output wire [`RADDR_WIDTH-1:0] rs_async_out_87,
+   output wire [`RADDR_WIDTH-1:0] rt_async_out_87,
+
    // inputs
    input wire [`ADDR_WIDTH-1:0] pc_in_87,
    input wire [`INSTR_WIDTH-1:0] instr_87,
@@ -71,15 +78,18 @@ wire [`DATA_WIDTH-1:0] offset_br_87 = {immediate_87 << 2, 2'b00};
 wire [`DATA_WIDTH-1:0] jump_trgt_87 = {4'b0, instr_87[`FIELD_WIDTH_OFF-1:0], 2'b00}; // TODO hardcoded...
 wire [`DATA_WIDTH-1:0] jump_addr_87 = (pc_in_87 & 'hf0000000) | jump_trgt_87;
 
-wire [`FIELD_WIDTH_RSTD-1:0] s_reg_87 = instr_87[`FIELD_POS_RS+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RS];
-wire [`FIELD_WIDTH_RSTD-1:0] t_reg_87 = instr_87[`FIELD_POS_RT+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RT];
-wire [`FIELD_WIDTH_RSTD-1:0] d_reg_87 = imm_as_reg_87 ? immediate_87[`FIELD_WIDTH_RSTD-1:0] : instr_87[`FIELD_POS_RD+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RD];
+wire [`RADDR_WIDTH-1:0] s_reg_87 = instr_87[`FIELD_POS_RS+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RS];
+wire [`RADDR_WIDTH-1:0] t_reg_87 = instr_87[`FIELD_POS_RT+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RT];
+wire [`RADDR_WIDTH-1:0] d_reg_87 = imm_as_reg_87 ? immediate_87[`FIELD_WIDTH_RSTD-1:0] : instr_87[`FIELD_POS_RD+`FIELD_WIDTH_RSTD-1:`FIELD_POS_RD];
 
 // in some cases (as of now only JR) we read the contents of the source register
-wire [`FIELD_WIDTH_RSTD-1:0] rread_87 = ctrl_jump_sel_87 == 2'b10 ? s_reg_87 : d_reg_87;
+wire [`RADDR_WIDTH-1:0] rread_87 = ctrl_jump_sel_87 == 2'b10 ? s_reg_87 : d_reg_87;
 
 wire [`FIELD_WIDTH_OP-1:0] op_code_87 = instr_87[`FIELD_POS_OP+`FIELD_WIDTH_OP-1:`FIELD_POS_OP];
 wire [`FIELD_WIDTH_FUNC-1:0] fn_code_87 = instr_87[`FIELD_POS_FUNC+`FIELD_WIDTH_FUNC-1:`FIELD_POS_FUNC];
+
+assign rs_async_out_87 = s_reg_87;
+assign rt_async_out_87 = t_reg_87;
 
 // register control module
 regs regs (
@@ -144,6 +154,9 @@ end
 always @(posedge clk_87) begin
    if (rst_87) begin
       pc_out_87      <= 0;
+      rs_87 <= 0;
+      rt_87 <= 0;
+      rd_87 <= 0;
    end else begin
       pc_out_87      <= pc_in_87;
       immd_87        <= immd_out_87;

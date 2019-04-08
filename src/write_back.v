@@ -12,9 +12,9 @@
 `include "mips_defs.vh"
 
 module write_back(
-   output wire reg_write_out_87,
-   output wire [`DATA_WIDTH-1:0] wb_data_87,
-   output wire [`FIELD_WIDTH_RSTD-1:0] wb_reg_out_87,
+   output reg reg_write_out_87,
+   output reg [`DATA_WIDTH-1:0] wb_data_87,
+   output reg [`FIELD_WIDTH_RSTD-1:0] wb_reg_out_87,
 
    input wire reg_write_in_87,
    input wire mem_2_reg_in_87,
@@ -25,14 +25,25 @@ module write_back(
    input wire clk_87
 );
 
-assign reg_write_out_87 = reg_write_in_87;
-assign wb_data_87 = mem_2_reg_in_87 ? mem_data_in_87 : mem_addr_in_87;
-assign wb_reg_out_87 = wb_reg_out_87;
+//assign reg_write_out_87 = reg_write_in_87;
+//assign wb_data_87 = mem_2_reg_in_87 ? mem_data_in_87 : mem_addr_in_87;
+//assign wb_reg_out_87 = wb_reg_out_87;
 
-always @(posedge clk_87) begin
+always @(*) begin
    if (rst_87) begin
+      reg_write_out_87 <= 0;
+      wb_data_87 <= 0;
+      wb_reg_out_87 <= 0;
    end else begin
+      reg_write_out_87 <= reg_write_in_87;
+      wb_data_87 <= mem_2_reg_in_87 ? mem_data_in_87 : mem_addr_in_87;
+      wb_reg_out_87 <= wb_reg_out_87;
    end
 end
+//always @(posedge clk_87) begin
+   //if (rst_87) begin
+   //end else begin
+   //end
+//end
 
 endmodule // write_back
