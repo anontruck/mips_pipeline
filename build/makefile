@@ -14,7 +14,7 @@ PROJECT_LIBS = -y../lib
 IM_FILE = "../test/imem.txt"
 DM_FILE = "../test/dmem.txt"
 PROJECT_DEFS = -DINSTR_FILE=\"$(IM_FILE)\"
-PROJECT_DEFS += -DDATA_FILS=\"$(DM_FILE)\"
+PROJECT_DEFS += -DDATA_FILE=\"$(DM_FILE)\"
 
 IVERILOG_FLAGS = -Wall
 

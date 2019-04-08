@@ -2,5 +2,8 @@
     "verilog.linting.iverilog.arguments": "-Wall -y.\\src -y.\\test -y.\\lib -I.\\src",
     "verilog.linting.linter": "iverilog",
     "verilog.clearPreviousOutput": true,
-    "verilog.showRunIconInEditorTitleMenu": false
+    "verilog.showRunIconInEditorTitleMenu": false,
+    "[verilog]": {
+        "editor.tabSize": 3
+    }
 }
