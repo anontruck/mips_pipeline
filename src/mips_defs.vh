@@ -13,12 +13,15 @@
 `ifndef _MIPS_DEFS_VH
 `define _MIPS_DEFS_VH
 
+`define DEBUG_TRACE
+
 /* ========================== C O N S T A N T S ============================= */
 
 `define INSTR_WIDTH        32
 `define ADDR_WIDTH         32
 `define DATA_WIDTH         32
 `define REG_WIDTH          32
+`define RADDR_WIDTH        5
 
 `define FIELD_WIDTH_OP     6
 `define FIELD_WIDTH_FUNC   6
@@ -34,6 +37,7 @@
 `define FIELD_POS_SHFT     6
 `define FIELD_POS_IMMD     0
 `define FIELD_POS_FUNC     0
+
 
 /* ========================= O P C O D E S ================================== */
 

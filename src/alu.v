@@ -22,8 +22,6 @@ module alu (
    input wire  [3:0]             alu_op_87
 );
 
-//reg [`DATA_WIDTH:0] 
-
 always @(*) begin
    case (alu_op_87)
       `ALU_ADD:

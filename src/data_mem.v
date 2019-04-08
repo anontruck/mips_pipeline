@@ -31,6 +31,9 @@ wire write_e_87 = we_87 && cs_87;
 assign rd_data_87 = (!we_87 && cs_87) ? data_87 : `DATA_WIDTH'bz;
 
 vl_ram #(.memory_file(data_file), 
+`ifdef DEBUG_TRACE
+         .debug(1),
+`endif
          .memory_init(1),
          .mem_size('d`ADDR_WIDTH * 4),
          .data_width(32'd`DATA_WIDTH),
@@ -41,9 +44,17 @@ vl_ram #(.memory_file(data_file),
                .q(data_87),
                .clk(clk_87)
          );
-
-//always @(posedge clk_87) begin
-  
-//end
+`ifdef DEBUG_TRACE
+always @(posedge clk_87) begin
+   if (!rst_87) begin
+      if (rd_data_87) begin
+         $strobe($time,,,"MEM: 0x%0h --> %0d", addr_87, data_87);
+      end
+      if (write_e_87) begin
+         $strobe($time,,,"MEM: 0x%0h <-- %0d", addr_87, wb_data_87);
+      end
+   end
+end
+`endif
 
 endmodule // data_mem

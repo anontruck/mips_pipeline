@@ -38,7 +38,6 @@ instr_mem i_mem_87 (
    .clk_87     (  clk_87   )
 );
 
-
 //always @(posedge clk_87 or posedge rst_87) begin
 always @(posedge clk_87) begin
    if (rst_87) begin
@@ -49,5 +48,13 @@ always @(posedge clk_87) begin
       npc_87   <= pc_nxt_87;
    end
 end
+
+`ifdef DEBUG_TRACE
+always @(posedge clk_87) begin
+   if (!rst_87) begin
+      $strobe($time,,,"IF: Fetch %0h", instr_87);
+   end
+end
+`endif
 
 endmodule // instr_fetch

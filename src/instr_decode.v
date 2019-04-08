@@ -9,8 +9,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 `include "mips_defs.vh"
 
-`define DEBUG_TRACE
-
 module instr_decode (
    // control signals
    output reg reg_write_87,                           // register write-back flag
@@ -26,13 +24,14 @@ module instr_decode (
    output reg [`DATA_WIDTH-1:0] data_read_1_87,       // read data outputs
    output reg [`DATA_WIDTH-1:0] data_read_2_87,
    // instruction decoding - TODO probably don't need
-   output reg [`DATA_WIDTH-1:0] j_addr_87,            // when jumping now
+   output reg [`DATA_WIDTH-1:0] jump_addr_out_87,     // jump address
    output reg [`DATA_WIDTH-1:0] immd_87,              // sign extended immediate
    output reg [`FIELD_WIDTH_SHAMT-1:0] shamt_87,
    output reg [`FIELD_WIDTH_OP-1:0] op_87,
    output reg [`FIELD_WIDTH_FUNC-1:0] fn_87,
-   output reg [`FIELD_WIDTH_RSTD-1:0] rt_87,
-   output reg [`FIELD_WIDTH_RSTD-1:0] rd_87,
+   output reg [`RADDR_WIDTH-1:0] rs_87,
+   output reg [`RADDR_WIDTH-1:0] rt_87,
+   output reg [`RADDR_WIDTH-1:0] rd_87,
    output reg [`ADDR_WIDTH-1:0] pc_out_87,
    // inputs
    input wire [`ADDR_WIDTH-1:0] pc_in_87,
@@ -60,8 +59,6 @@ wire [`DATA_WIDTH-1:0] reg_data_2_87;
 reg [`DATA_WIDTH-1:0] data_out_1_87;
 reg [`DATA_WIDTH-1:0] data_out_2_87;
 reg [`DATA_WIDTH-1:0] immd_out_87;
-
-reg [`FIELD_WIDTH_RSTD-1:0] rs_87;
 
 // instruction decoding
 wire [`DATA_WIDTH-1:0] shift_amt_87 = instr_87[`FIELD_WIDTH_SHAMT+`FIELD_POS_SHFT-1:`FIELD_POS_SHFT];
@@ -117,10 +114,14 @@ ctrl_unit ctrl_unit (
 
 always @(*) begin
    if (op_code_87 == `OPCODE_R) begin
-      data_out_1_87 <= reg_data_1_87;
-      data_out_2_87 <= reg_data_2_87;
+      if (fn_code_87 == `FUNC_JR) begin
+         jump_addr_out_87 <= reg_data_2_87;
+      end else begin
+         data_out_1_87 <= reg_data_1_87;
+         data_out_2_87 <= reg_data_2_87;
+      end
    end else if (op_code_87 == `OPCODE_J) begin
-      //data_out_1_87 <= jump_addr_87;
+      jump_addr_out_87 <= jump_addr_87;
    end else if (op_code_87 == `OPCODE_LW) begin
       data_out_1_87 <= reg_data_1_87;
       data_out_2_87 <= reg_data_2_87;
@@ -172,7 +173,7 @@ end
    always @(posedge clk_87) begin
    jmp_address_87 <= jump_addr_87;
    if (rst_87) begin
-         $strobe($time,,,"...reset...");
+         //$strobe($time,,,"...reset...");
       end else if (instr_87 == 0) begin
          //$strobe("");
       end else if (op_code_87 == `OPCODE_R) begin

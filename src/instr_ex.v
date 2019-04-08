@@ -36,8 +36,8 @@ module instr_ex (
    input wire [1:0] alu_ctl_87,
    input wire [1:0] jmp_sel_87,
 
-   input wire [`FIELD_WIDTH_RSTD-1:0] trgt_r_in_87,
-   input wire [`FIELD_WIDTH_RSTD-1:0] dest_r_in_87,
+   input wire [`RADDR_WIDTH-1:0] rt_in_87,
+   input wire [`RADDR_WIDTH-1:0] rd_in_87,
    input wire [`FIELD_WIDTH_OP-1:0] op_87,
    input wire [`FIELD_WIDTH_FUNC-1:0] fn_87,
    input wire [`DATA_WIDTH-1:0] imm_s_87,
@@ -73,7 +73,7 @@ assign shamt_87 = imm_s_87[`FIELD_WIDTH_SHAMT+`FIELD_POS_SHFT-1:`FIELD_POS_SHFT]
 assign do_shift_87 = (alu_op_87 == `ALU_SLL) || (alu_op_87 == `ALU_SRL);
 assign alu_in_a_87 = rval_a_87;
 assign alu_in_b_87 = alu_src_87 ? imm_s_87 : do_shift_87 ? shamt_87 : alu_in_b_87;
-assign wb_addr_wire_87 = reg_dst_87 ? dest_r_in_87 : trgt_r_in_87;
+assign wb_addr_wire_87 = reg_dst_87 ? rd_in_87 : rt_in_87;
 
 // for R-Type functions convert to the correct ALU opcode 
 always @(*) begin
@@ -96,28 +96,31 @@ always @(*) begin
          default:
             alu_op_87 <= 'bz; // idk
       endcase
+   end else begin
+      alu_op_87 <= alu_ctl_87;
    end
 end
 
 always @(*) begin
-   if (alu_ctl_87 == 2'b10) begin
-      if (fn_87 != `FUNC_JR) begin
+   if (alu_ctl_87 == 2'b10) begin            // arithmatic function
+      if (fn_87 != `FUNC_JR)
          result_tmp_87 <= alu_rslt_87;
-      end
-   end else begin
+   end else if (alu_ctl_87 == 2'b01) begin   // branching
+      // TODO
    end
 end
 
 always @(posedge clk_87) begin
    if (rst_87) begin
       pc_out_87  <= 0;
+      adr_out_87 <= 0;
    end else begin
       zero_87     <= alu_zero_87;
       adr_out_87  <= alu_rslt_87;
       br_addr_87  <= pc_brnch_87;
       wb_data_87  <= alu_in_b_87;
       wb_radr_87  <= wb_addr_wire_87;     
-      pc_out_87  <= pc_in_87;
+      pc_out_87   <= pc_in_87;
       branch_out_87  <= branch_in_87;
       mem_read_out_87   <= mem_read_in_87;
       mem_write_out_87  <= mem_write_in_87;
@@ -128,6 +131,7 @@ end
 
 `ifdef DEBUG_TRACE
 always @(posedge clk_87) begin
+
 end
 `endif
 

@@ -35,7 +35,7 @@ always @(posedge clk_87 or posedge rst_87) begin
       read_data_2_87 <= `REG_WIDTH'b0;
    end else if (we_87) begin
       // don't allow writes to r0
-      regs_87[write_reg_87] <= write_reg_87 ? write_data_87 : `REG_WIDTH'b0;
+      regs_87[write_reg_87] <= write_reg_87 != 0 ? write_data_87 : `REG_WIDTH'b0;
    end
 end
 
@@ -47,10 +47,33 @@ always @(negedge clk_87) begin
    end
 end
 
+
 `ifdef DEBUG_TRACE
+
+reg [`RADDR_WIDTH-1:0] rreg_1_87;
+reg [`RADDR_WIDTH-1:0] rreg_2_87;
+reg [`RADDR_WIDTH-1:0] wreg_87;
+reg [`RADDR_WIDTH-1:0] data_87;
+
 always @(posedge clk_87) begin
-   if (!rst_87 && we_87 && (write_reg_87 == 0))
-      $strobe($time,,,"IF: Attempted to write to $r0");
+   wreg_87 <= write_reg_87;
+   data_87 <= write_data_87;
+   if (!rst_87 && we_87) begin
+      if (write_reg_87 == 0) begin
+         $strobe($time,,,"IF: Attempted to write to $r0");
+      end else begin
+         $strobe($time,,,"IF: Write: $%0d <-- %0d", wreg_87, data_87);
+      end
+   end
+end
+
+always @(negedge clk_87) begin
+   rreg_1_87 <= read_reg_1_87;
+   rreg_2_87 <= read_reg_2_87;
+   if (!rst_87) begin
+      $strobe($time,,,"IF Read1: $%0d --> %0d", rreg_1_87, read_data_1_87);
+      $strobe($time,,,"IF Read2: $%0d --> %0d", rreg_2_87, read_data_2_87);
+   end
 end
 `endif
 
