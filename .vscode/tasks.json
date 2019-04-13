@@ -48,6 +48,15 @@
             "args": [
                 "${workspaceFolder}\\build\\bin\\dump.vcd"
             ]
+        },
+        {
+            "label": "Generate memory files",
+            "type": "shell",
+            "group":"none",
+            "command": "make all",
+            "options": {
+                "cwd": "${workspaceFolder}\\scripts"
+            }
         }
     ]
 }

@@ -14,10 +14,10 @@
 `include "mips_defs.vh"
 
 module instr_mem(
-   output wire [`INSTR_WIDTH-1:0] instr_87,     // 32-bit fetched instruction
-   input wire  [`ADDR_WIDTH-1:0] addr_87,       // 32-bit instruction address
-   input wire  en_87,                           // enable line
-   input wire  clk_87                           // 
+   output reg [`INSTR_WIDTH-1:0] instr_87,     // 32-bit fetched instruction
+   input wire [`ADDR_WIDTH-1:0] addr_87,       // 32-bit instruction address
+   input wire en_87,                           // enable line
+   input wire clk_87                           // 
 );
 parameter instr_file = `ifdef INSTR_FILE `INSTR_FILE `else "instr_mem.mem" `endif;
 
@@ -39,7 +39,11 @@ vl_ram #(.memory_file(instr_file),
                .clk  (  clk_87      )
          );
 
-assign instr_87 = en_87 ? instr_read_87 : 0;
+always @(*) begin
+   if (en_87)
+      instr_87 <= instr_read_87;
+end
+//assign instr_87 = en_87 ? instr_read_87 : 0;
 
 //always @(posedge clk_87 or negedge en_87) begin
    //if (en_87) begin

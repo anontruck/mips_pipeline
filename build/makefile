@@ -11,10 +11,12 @@ PROJECT_INC = -I $(PROJECT_SRC_PATH)
 
 PROJECT_LIBS = -y../lib
 
+REG_INIT_FILE = "../test/reg_init.txt"
 IM_FILE = "../test/imem.txt"
 DM_FILE = "../test/dmem.txt"
 PROJECT_DEFS = -DINSTR_FILE=\"$(IM_FILE)\"
 PROJECT_DEFS += -DDATA_FILE=\"$(DM_FILE)\"
+PROJECT_DEFS += -DREG_INITF=\"$(REG_INIT_FILE)\"
 
 IVERILOG_FLAGS = -Wall
 

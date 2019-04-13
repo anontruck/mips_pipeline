@@ -66,7 +66,7 @@
 
 /* ===================== F U N C T I O N  C O D E S ========================  */
 
-`define FUNC_SLL           6'b000100   // shift left logical
+`define FUNC_SLL           6'b000000   // shift left logical
 `define FUNC_SRL           6'b000010   // shift right logical
 `define FUNC_JR            6'b001000   // jump register
 //`define FUNC_JALR          6'b001001   // jump and link register

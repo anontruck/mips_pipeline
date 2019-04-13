@@ -18,8 +18,7 @@ module hazard_ctl(
    input wire [`RADDR_WIDTH-1:0] rd_ex_dm_87,   // rd between EX and MEM stages
    input wire [`RADDR_WIDTH-1:0] rd_dm_wb_87,   // rd between MEM and WB stages
    input wire [`RADDR_WIDTH-1:0] rd_wb_id_87,   // write back reg
-   input wire rst_87,
-   input wire clk_87 // only for debugging...
+   input wire rst_87
 );
 
 wire hazard_r1_id_ex = (r1_id_in_87 == rd_id_ex_87) && (rd_id_ex_87 != 0);
@@ -35,32 +34,11 @@ wire hazard_r2_wb_id = (r2_id_in_87 == rd_wb_id_87) && (rd_wb_id_87 != 0);
 wire hazard_r1 = hazard_r1_id_ex || hazard_r1_ex_dm || hazard_r1_dm_wb || hazard_r1_wb_id;
 wire hazard_r2 = hazard_r2_id_ex || hazard_r2_ex_dm || hazard_r2_dm_wb || hazard_r2_wb_id;
 
-always @(posedge clk_87) begin
+always @(*) begin
    stall_87 <= 0;
    flush_87 <= 0;
    if (!rst_87 && (hazard_r1 || hazard_r2)) begin
       stall_87 <= 1;
-`ifdef DEBUG_TRACE
-      $strobe($time,,,"********** Hazard **********");
-      if (hazard_r1)
-         if (hazard_r1_id_ex)
-            $strobe($time,,,"rd 1 id/ex");
-         if (hazard_r1_ex_dm)
-            $strobe($time,,,"rd 1 ex/dm");
-         if (hazard_r1_dm_wb)
-            $strobe($time,,,"rd 1 dm/wb");
-         if (hazard_r1_wb_id)
-            $strobe($time,,,"rd 1 wb/id");
-      if (hazard_r2)
-         if (hazard_r2_id_ex)
-            $strobe($time,,,"rd 2 id/ex");
-         if (hazard_r2_ex_dm)
-            $strobe($time,,,"rd 2 ex/dm");
-         if (hazard_r2_dm_wb)
-            $strobe($time,,,"rd 2 dm/wb");
-         if (hazard_r2_wb_id)
-            $strobe($time,,,"rd 2 wb/id");
-`endif
    end
 end
 
