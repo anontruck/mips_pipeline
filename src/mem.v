@@ -30,10 +30,10 @@ module mem(
    input wire clk_87
 );
 
-wire [`DATA_WIDTH-1:0] mem_out_87;
+reg we_87;
+reg cs_87; 
 
-wire we_87 = mem_write_in_87 && !mem_read_in_87;
-wire cs_87 = mem_write_in_87 || mem_read_in_87;
+wire [`DATA_WIDTH-1:0] mem_out_87;
 
 data_mem dmem (
                .rd_data_87 (mem_out_87),
@@ -48,16 +48,23 @@ data_mem dmem (
 );
 
 always @(*) begin
-   mem_data_out_87 <= mem_out_87;
+   if (rst_87)
+      mem_data_out_87 <= 0;
+   else if (cs_87)
+      mem_data_out_87 <= mem_out_87;
 end
 
 always @(posedge clk_87) begin
    if (rst_87) begin
+      we_87 <= 0;
+      cs_87 <= 0;
       reg_addr_out_87   <= 0;
       reg_write_out_87  <= 0;
       mem_addr_out_87   <= 0;
       mem_2_reg_out_87  <= 0;
    end else begin
+      we_87 <= mem_write_in_87 && !mem_read_in_87;
+      cs_87 <= mem_write_in_87 || mem_read_in_87;
       mem_addr_out_87 <= mem_addr_in_87;
       reg_addr_out_87 <= reg_addr_in_87;
       reg_write_out_87 <= reg_write_in_87;

@@ -51,7 +51,7 @@ always #1 clk_87 <= ~clk_87;
 always @(system_halt_87) begin
    if (system_halt_87 == 1'b1) begin
       $display($time,,,"SYSTEM HALT");
-      $finish;
+      #1 $finish;
    end
 end
 

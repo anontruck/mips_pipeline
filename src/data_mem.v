@@ -13,7 +13,7 @@
 `include "mips_defs.vh"
 
 module data_mem(
-   output reg [`DATA_WIDTH-1:0] rd_data_87,
+   output wire [`DATA_WIDTH-1:0] rd_data_87,
    input wire [`ADDR_WIDTH-1:0] rd_addr_87,
    input wire [`ADDR_WIDTH-1:0] wb_addr_87,
    input wire [`DATA_WIDTH-1:0] wb_data_87,
@@ -29,6 +29,7 @@ wire [`ADDR_WIDTH-1:0] addr_87 = we_87 ? wb_addr_87 >> 2 : rd_addr_87 >> 2;
 wire write_e_87 = we_87 && cs_87;
 
 //assign rd_data_87 = (!we_87 && cs_87) ? data_87 : `DATA_WIDTH'bz;
+assign rd_data_87 = cs_87 ? data_87 : `DATA_WIDTH'bz;
 
 vl_ram #(.memory_file(data_file), 
 `ifdef DEBUG_TRACE
@@ -45,12 +46,5 @@ vl_ram #(.memory_file(data_file),
                .q(data_87),
                .clk(clk_87)
          );
-
-always @(*) begin
-   if (rst_87)
-      rd_data_87 <= 0;
-   else if (cs_87)
-      rd_data_87 <= data_87;
-end
 
 endmodule // data_mem

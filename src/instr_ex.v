@@ -106,7 +106,7 @@ always @(posedge clk_87) begin
       mem_2_reg_out_87     <= 0;
    end else begin
       result_87            <= alu_rslt_87;
-      write_back_data_87   <= alu_in_b_87;
+      write_back_data_87   <= rval_b_87;
       reg_write_addr_87    <= reg_dest_87;     
       mem_read_out_87      <= mem_read_in_87;
       mem_write_out_87     <= mem_write_in_87;

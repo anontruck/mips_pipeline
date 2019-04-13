@@ -106,6 +106,8 @@ regs #(
    .read_data_1_87   (reg_data_1_87),
    .read_data_2_87   (reg_data_2_87),
 
+   .dump_reg_data_87 (system_halt_87),
+
    .read_reg_1_87    (s_reg_87),
    .read_reg_2_87    (t_reg_87),
    .write_reg_87     (reg_2_write_87),
@@ -149,6 +151,9 @@ always @(*) begin
       pc_out_87   <= jump_addr_87;
       branch_flag_87  <= 1'b1;
       //flush_flag_87 <= 1'b1;
+   end else if (op_code_87 == `OPCODE_MUL) begin
+      data_out_1_87 <= reg_data_1_87;
+      data_out_2_87 <= reg_data_2_87;
    end else if (op_code_87 == `OPCODE_LW) begin
       data_out_1_87 <= reg_data_1_87;
       data_out_2_87 <= reg_data_2_87;
@@ -235,7 +240,8 @@ always @(posedge clk_87) begin
       alu_src_87     <= ctrl_alu_src_87;
       alu_op_87      <= ctrl_alu_op_87;
       rt_87 <= t_reg_87;
-      rd_87 <= imm_as_reg_87 ? imm_s32_87[`FIELD_WIDTH_RSTD-1:0] : d_reg_87;
+      //rd_87 <= imm_as_reg_87 ? imm_s32_87[`FIELD_WIDTH_RSTD-1:0] : d_reg_87;
+      rd_87 <= d_reg_87;
       op_87 <= op_code_87;
       fn_87 <= fn_code_87;
    end

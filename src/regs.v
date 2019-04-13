@@ -16,6 +16,7 @@ module regs(
    input wire  [`RADDR_WIDTH-1:0]   read_reg_2_87,    // rd
    input wire  [`RADDR_WIDTH-1:0]   write_reg_87,     // rs
    input wire  [`DATA_WIDTH-1:0]    write_data_87,
+   input wire dump_reg_data_87,
    input wire                       we_87,            // write enable
    input wire                       rst_87,
    input wire                       clk_87
@@ -71,6 +72,17 @@ task init_registers;
    else
       clear_registers;
 endtask
+
+always @(dump_reg_data_87) begin
+   if (dump_reg_data_87) begin
+      for (i=0; i<REG_COUNT; i=i+1)
+         $write("R%2d | ", i);
+      $display("");
+      for (i=0; i<REG_COUNT; i=i+1)
+         $write(" %2d | ", regs_87[i]);
+      $display("");
+   end
+end
 
 
 `ifdef DEBUG_TRACE

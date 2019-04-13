@@ -193,7 +193,7 @@ hazard_ctl hzu (
    .rd_ex_dm_87   (reg_addr_ex_dm_87),
    .rd_dm_wb_87   (wb_reg_mem_87),
    .rd_wb_id_87   (wr_addr_wb_id_87),
-   .rst_87        (rst_87)
+   .rst_87        (rst_87) 
 );
 
 endmodule // simple_mips
