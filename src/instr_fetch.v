@@ -27,12 +27,11 @@ reg [`INSTR_WIDTH-1:0] instr_store_87;
 reg [`ADDR_WIDTH-1:0] cpc_87;
 wire [`INSTR_WIDTH-1:0] mem_out_87;
 
-//wire en_87 = !rst_87 && !stall_87; 
-wire en_87 = (stall_87 == 1'b1) ? 1'b0 : 1'b1;
+//wire en_87 = (stall_87 == 1'b1) ? 1'b0 : 1'b1;
+wire en_87 = 1;
 
 wire [`ADDR_WIDTH-1:0] sel_adr_87 = sel_87 ? pc_87 : npc_87;
 wire [`ADDR_WIDTH-1:0] mem_adr_87 = stall_87 ? cpc_87 : sel_adr_87;
-//wire [`ADDR_WIDTH-1:0] mem_adr_87 = rst_87 ? 0 : sel_87 ? pc_87 : npc_87;
 wire [`ADDR_WIDTH-1:0] pc_next_87 = mem_adr_87 + 4;
 
 instr_mem i_mem_87 (
@@ -58,7 +57,7 @@ end
 always @(*) begin
    if (rst_87 || flush_87) begin
       instr_87 <= 0;
-   end else if (!stall_87) begin
+   end else begin
       instr_87 <= mem_out_87;
    end
 end
