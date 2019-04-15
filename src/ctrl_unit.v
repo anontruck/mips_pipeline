@@ -54,10 +54,10 @@ always @(*) begin
          jump_imm_87    <= 1'b1;
       end else if (op_87 == `OPCODE_BEQ) begin
          branch_87      <= 1'b1;
-         alu_op_87      <= 2'b01;
+         //alu_op_87      <= 2'b01;
       end else if (op_87 == `OPCODE_BNE) begin
          branch_87      <= 1'b1;
-         alu_op_87      <= 2'b11;
+         //alu_op_87      <= 2'b11;
       end else if (op_87 == `OPCODE_LW) begin
          reg_wb_87      <= 1'b1;
          alu_src_87     <= 1'b1;

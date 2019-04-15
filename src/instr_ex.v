@@ -30,6 +30,11 @@ module instr_ex (
    input wire alu_src_87,                             // select reg contents or I-val
    input wire [1:0] alu_ctl_87,
 
+   input wire [1:0] fw_sel_a_87,
+   input wire [1:0] fw_sel_b_87,
+   input wire [`DATA_WIDTH-1:0] fw_data_mem_87,
+   input wire [`DATA_WIDTH-1:0] fw_data_wb_87,
+
    input wire [`RADDR_WIDTH-1:0] rt_in_87,
    input wire [`RADDR_WIDTH-1:0] rd_in_87,
    input wire [`FIELD_WIDTH_OP-1:0] op_87,
@@ -46,7 +51,10 @@ reg [3:0] alu_op_87;
 
 wire do_shift_87;
 wire alu_zero_87;
-//wire [`ADDR_WIDTH-1:0] pc_brnch_87;
+
+wire [`DATA_WIDTH-1:0] alu_fw_a_87;
+wire [`DATA_WIDTH-1:0] alu_fw_b_87;
+
 wire [`DATA_WIDTH-1:0] alu_in_a_87;
 wire [`DATA_WIDTH-1:0] alu_in_b_87;
 wire [`DATA_WIDTH-1:0] alu_rslt_87;
@@ -61,8 +69,11 @@ alu alu (
    .en_87      (~rst_87)
 );
 
-assign alu_in_a_87 = rval_a_87;
-assign alu_in_b_87 = alu_src_87 ? imm_s_87 : rval_b_87;
+assign alu_fw_a_87 = fw_sel_a_87 == 2'b10 ? fw_data_mem_87 : fw_data_wb_87;
+assign alu_fw_b_87 = fw_sel_b_87 == 2'b10 ? fw_data_mem_87 : fw_data_wb_87;
+
+assign alu_in_a_87 = fw_sel_a_87 == 2'b00 ? rval_a_87 : alu_fw_a_87;
+assign alu_in_b_87 = alu_src_87 ? imm_s_87 : (fw_sel_b_87 == 2'b00 ? rval_b_87 : alu_fw_b_87);
 assign reg_dest_87 = reg_dst_87 ? rd_in_87 : rt_in_87;
 
 // for R-Type functions convert to the correct ALU opcode 
@@ -106,7 +117,8 @@ always @(posedge clk_87) begin
       mem_2_reg_out_87     <= 0;
    end else begin
       result_87            <= alu_rslt_87;
-      write_back_data_87   <= rval_b_87;
+      //write_back_data_87   <= rval_b_87;
+      write_back_data_87   <= (fw_sel_a_87 == 2'b00 ? rval_b_87 : alu_fw_b_87);
       reg_write_addr_87    <= reg_dest_87;     
       mem_read_out_87      <= mem_read_in_87;
       mem_write_out_87     <= mem_write_in_87;

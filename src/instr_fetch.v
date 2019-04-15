@@ -42,7 +42,7 @@ instr_mem i_mem_87 (
 );
 
 always @(posedge clk_87) begin
-   if (rst_87 || flush_87) begin
+   if (rst_87) begin
       npc_87 <= 0;
       cpc_87 <= 0;
    end else if (stall_87) begin
@@ -55,8 +55,10 @@ always @(posedge clk_87) begin
 end
 
 always @(*) begin
-   if (rst_87 || flush_87) begin
+   if (rst_87) begin// || flush_87) begin
       instr_87 <= 0;
+   end else if (stall_87) begin
+      instr_87 <= instr_87;
    end else begin
       instr_87 <= mem_out_87;
    end

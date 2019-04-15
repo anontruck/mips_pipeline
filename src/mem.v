@@ -10,9 +10,6 @@
 `include "mips_defs.vh"
 
 module mem(
-   //output wire branch_taken_87,                       // async - flag to take branch
-   //output wire [`ADDR_WIDTH-1:0] branch_adr_out_87,   // async - branch address
-
    output reg mem_2_reg_out_87,
    output reg reg_write_out_87,
    output reg [`DATA_WIDTH-1:0] mem_data_out_87,      // data read from memory

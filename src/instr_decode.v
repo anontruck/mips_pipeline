@@ -21,8 +21,10 @@ module instr_decode (
    output reg [1:0] alu_op_87,                        // ALU operation control signal
    output reg flush_flag_87,                          // if branching, flag to flush the IF stage
    output reg branch_flag_87,                         // set on jumps or branches
+   output reg jump_flag_87,
    output reg [`ADDR_WIDTH-1:0] pc_out_87,            // next PC if a jump or branch taken
    output reg [`DATA_WIDTH-1:0] immd_87,              // sign extended immediate
+   output reg [`RADDR_WIDTH-1:0] rs_87,
    output reg [`RADDR_WIDTH-1:0] rt_87,
    output reg [`RADDR_WIDTH-1:0] rd_87,
    output reg [`FIELD_WIDTH_OP-1:0] op_87,
@@ -33,6 +35,11 @@ module instr_decode (
    // async rs and rt outputs for hazard detection and forwarding
    output wire [`RADDR_WIDTH-1:0] rs_async_out_87,
    output wire [`RADDR_WIDTH-1:0] rt_async_out_87,
+   
+   output wire branch_ctrl_87,
+   input wire branch_fw_a_87,
+   input wire branch_fw_b_87,
+   input wire [`DATA_WIDTH-1:0] fw_data_87,
    // inputs
    input wire [`INSTR_WIDTH-1:0] instr_87,
    input wire [`RADDR_WIDTH-1:0] reg_2_write_87,      // register to write to
@@ -91,6 +98,7 @@ ctrl_unit ctrl_unit (
    .mem_write_87     (ctrl_mem_write_87),
    .mem_to_reg_87    (ctrl_mem_to_reg_87),
    .alu_op_87        (ctrl_alu_op_87),
+   .branch_87        (branch_ctrl_87),
 
    .imm_as_reg_87    (imm_as_reg_87),
    .en_87            (~rst_87),
@@ -117,17 +125,21 @@ regs #(
    .clk_87           (clk_87)
 );
 
-wire equals_flag_87 = (reg_data_1_87 == reg_data_2_87) ? 1'b1 : 1'b0;
+wire [`DATA_WIDTH-1:0] reg_compare_a = branch_fw_a_87 ? fw_data_87 : reg_data_1_87;
+wire [`DATA_WIDTH-1:0] reg_compare_b = branch_fw_b_87 ? fw_data_87 : reg_data_2_87;
+wire equals_flag_87 = (reg_compare_a == reg_compare_b) ? 1'b1 : 1'b0;
 
 reg [`DATA_WIDTH-1:0] data_out_1_87;
 reg [`DATA_WIDTH-1:0] data_out_2_87;
 reg [`DATA_WIDTH-1:0] immd32_out_87;
 
 always @(*) begin
-   if (rst_87 || nop_87) begin
+   flush_flag_87 <= 1'b0;
+   if (rst_87 || stall_87 || nop_87) begin
       pc_out_87 <= 0;
       flush_flag_87 <= 1'b0;
       branch_flag_87 <= 1'b0;
+      jump_flag_87 <= 0;
       data_out_1_87 <= 0;
       data_out_2_87 <= 0;
       immd32_out_87 <= 0;
@@ -135,8 +147,8 @@ always @(*) begin
       flush_flag_87 <= 1'b0;
       if (fn_code_87 == `FUNC_JR) begin
          pc_out_87   <= reg_data_2_87;
-         branch_flag_87  <= 1'b1;
-         //flush_flag_87 <= 1'b1;
+         jump_flag_87  <= 1'b1;
+         flush_flag_87 <= 1'b1;
       end else begin
          flush_flag_87 <= 1'b0;
          if (fn_code_87 == `FUNC_SLL || fn_code_87 == `FUNC_SRL) begin
@@ -149,8 +161,8 @@ always @(*) begin
       end
    end else if (op_code_87 == `OPCODE_J) begin
       pc_out_87   <= jump_addr_87;
-      branch_flag_87  <= 1'b1;
-      //flush_flag_87 <= 1'b1;
+      jump_flag_87 <= 1'b1;
+      flush_flag_87 <= 1'b1;
    end else if (op_code_87 == `OPCODE_MUL) begin
       data_out_1_87 <= reg_data_1_87;
       data_out_2_87 <= reg_data_2_87;
@@ -169,24 +181,24 @@ always @(*) begin
    end else if ((op_code_87 == `OPCODE_BEQ) && (equals_flag_87 == 1'b1)) begin
       pc_out_87 <= pc_in_87 + {imm_s32_87, 2'b00};
       branch_flag_87 <= 1'b1;
-      //flush_flag_87 <= 1'b1;
+      flush_flag_87 <= 1'b1;
    end else if ((op_code_87 == `OPCODE_BNE) && (equals_flag_87 == 1'b0)) begin
       pc_out_87 <= pc_in_87 + {imm_s32_87, 2'b00};
       branch_flag_87 <= 1'b1;
-      //flush_flag_87 <= 1'b1;
+      flush_flag_87 <= 1'b1;
    end else begin
       data_out_1_87 <= reg_data_1_87;
       data_out_2_87 <= imm_s32_87;
       immd32_out_87 <= imm_s32_87;  // TODO - clean this up...
       branch_flag_87 <= 1'b0;
+      jump_flag_87 <= 1'b0;
       flush_flag_87 <= 1'b0;
       pc_out_87 <= 0;
    end
 end
 
 always @(posedge clk_87) begin
-   //if (rst_87 || stall_87 || jump_87 || system_halt_87) begin
-   if (rst_87 || nop_87 || branch_flag_87 || system_halt_87) begin
+   if (rst_87 || nop_87 || branch_flag_87 || jump_flag_87 || system_halt_87) begin
 
       // if stalling, maintain pc but still zero everything out. This will
       // effectively result in a NOP instruction inserted into the pipeline
@@ -206,6 +218,7 @@ always @(posedge clk_87) begin
       immd_87        <= 0;
       op_87          <= 0;
       fn_87          <= 0;
+      rs_87          <= 0;
       rt_87          <= 0;
       rd_87          <= 0;
    end else if (stall_87) begin
@@ -225,6 +238,7 @@ always @(posedge clk_87) begin
       immd_87        <= 0;
       op_87          <= 0;
       fn_87          <= 0;
+      rs_87          <= 0;
       rt_87          <= 0;
       rd_87          <= 0;
    end else begin
@@ -239,6 +253,7 @@ always @(posedge clk_87) begin
       mem_write_87   <= ctrl_mem_write_87;
       alu_src_87     <= ctrl_alu_src_87;
       alu_op_87      <= ctrl_alu_op_87;
+      rs_87 <= s_reg_87;
       rt_87 <= t_reg_87;
       //rd_87 <= imm_as_reg_87 ? imm_s32_87[`FIELD_WIDTH_RSTD-1:0] : d_reg_87;
       rd_87 <= d_reg_87;
@@ -254,17 +269,15 @@ end
 `ifdef DEBUG_TRACE
 
 reg [`DATA_WIDTH-1:0] jmp_address_87;
-reg [`RADDR_WIDTH-1:0] rs_87;
 reg [`DATA_WIDTH-1:0] shamt_87;
 
 wire [`DATA_WIDTH-1:0] shift_amt_87 = instr_87[`FIELD_WIDTH_SHAMT+`FIELD_POS_SHFT-1:`FIELD_POS_SHFT];
 
 wire signed [`FIELD_WIDTH_IMM-1:0] immd = $signed(immd_87);
 
-always @(negedge clk_87) begin
+always @(posedge clk_87) begin
    jmp_address_87 <= jump_addr_87;
    shamt_87 <= shift_amt_87;
-   rs_87 <= s_reg_87;
    if (rst_87) begin
       $strobe($time,,,"ID: RESET");
    end else if (stall_87) begin
@@ -301,6 +314,11 @@ always @(negedge clk_87) begin
          default        : $strobe($time,,,"ID: UNKNOWN I-TYPE FUNCTION: %b", instr_87);
       endcase
    end
+
+   if (branch_flag_87)
+      $strobe($time,,,"ID: BRANCH TAKEN");
+   else if (jump_flag_87)
+      $strobe($time,,,"ID: JUMP TAKEN");
 end
 
 `endif // DEBUG_TRACE
